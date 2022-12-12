@@ -72,10 +72,28 @@ const setFormListener =  () => {
     })
 }
 
+const setToDoListener = () => {
+
+    document.addEventListener("click", (event) => {
+        if(event.target.classList.contains("delete-todo")){
+            const id = event.target.dataset.id;
+            
+            const targetIndex = state.todos.findIndex((todo)=> todo.id == id);
+            
+            state.todos.splice(targetIndex, 1);
+
+            saveStateOnMemory();
+            renderTodos();
+        }
+    })
+
+}
+
 const init = async () => {
     await getStateFromMemory();
     renderTodos();
     setFormListener();
+    setToDoListener();
 }
 
 init();
