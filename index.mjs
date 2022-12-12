@@ -3,9 +3,20 @@ import { internalStorage } from "./internalStorage.mjs"
 import { generateToDoItemHTML } from "./dom.mjs"
 
 const $todoList = document.querySelector("#todo-list");
+const $title = document.querySelector('#title')
+const $form = document.querySelector('#form')
+const $completed = document.querySelector('#completed')
 
 const state = {
-    todos: []
+    todos: [],
+    form : {
+        title:"",
+        completed: false,
+    }
+}
+
+const saveStateOnMemory = () =>{
+    internalStorage.set('state', state)
 }
 
 const fetchToDos = async () => {
@@ -13,7 +24,7 @@ const fetchToDos = async () => {
         const result = await fetch(Constants.API_TODOS_URL)
         const todos = await result.json()
         state.todos = [...todos].splice(0,10)
-        internalStorage.set('state', state)
+        saveStateOnMemory();
     }catch(e) {
         console.log(e)
     }
@@ -35,8 +46,36 @@ const renderTodos = () => {
     $todoList.innerHTML = html;
 }
 
+const createToDo = () => {
+    const newToDo = {
+        id : new Date().getTime(),
+        title : state.form.title,
+        completed : state.form.completed,
+    }
+    state.todos.push(newToDo);
+    saveStateOnMemory();
+    renderTodos();
+}
+
+const setFormListener =  () => {
+    $title.addEventListener('input', (event) =>{
+        const value = event.target.value;
+        state.form.title = value;
+    })
+    $completed.addEventListener('change', (event) =>{
+        const value = event.target.value;
+        state.form.completed = value == 'true';
+    })
+    $form.addEventListener('submit', (event) =>{
+        event.preventDefault();
+        createToDo();
+    })
+}
+
 const init = async () => {
     await getStateFromMemory();
     renderTodos();
+    setFormListener();
 }
-init()
+
+init();
