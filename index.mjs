@@ -68,7 +68,11 @@ const setFormListener =  () => {
     })
     $form.addEventListener('submit', (event) =>{
         event.preventDefault();
+        if( state.form.title == "" || typeof state.form.completed != "boolean" ) {
+            return;
+        } 
         createToDo();
+        $form.reset()
     })
 }
 
@@ -84,8 +88,19 @@ const setToDoListener = () => {
 
             saveStateOnMemory();
             renderTodos();
+        }else if (event.target.classList.contains("update-completed-state")){
+            const id = event.target.dataset.id;
+
+            const targetIndex = state.todos.findIndex((todo) => todo.id == id);
+
+            state.todos[targetIndex].completed = !state.todos[targetIndex].completed;
+            saveStateOnMemory()
+            renderTodos();
         }
+
     })
+
+
 
 }
 
